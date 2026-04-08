@@ -5,5 +5,6 @@ Implemented automated CRM actions based on AI signals (e.g., SELL → risk flagg
 Tech Stack: Salesforce (Apex, Flow), FastAPI, OpenAI API, Named Credentials, REST Integration
 
 
-https://github.com/user-attachments/assets/f00a47f9-1c3a-494d-a9eb-b022ca92a3c2
+
+https://github.com/user-attachments/assets/543c2164-3f0c-4114-9ab0-89aef5c469b1
 
