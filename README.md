@@ -3,3 +3,7 @@ Designed an asynchronous architecture using @future Apex to handle external API 
 Engineered an OpenAI-powered analysis engine generating buy/sell/hold signals with contextual market reasoning, dynamically stored on Opportunity records.
 Implemented automated CRM actions based on AI signals (e.g., SELL → risk flagging, BUY → priority boost), enabling intelligent pipeline management.
 Tech Stack: Salesforce (Apex, Flow), FastAPI, OpenAI API, Named Credentials, REST Integration
+
+
+https://github.com/user-attachments/assets/f00a47f9-1c3a-494d-a9eb-b022ca92a3c2
+
