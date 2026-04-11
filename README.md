@@ -37,7 +37,7 @@ Response stored back in Salesforce (Opportunity)
 - Tech Stack: Salesforce (Apex, Flow), FastAPI, OpenAI API, Named Credentials, REST Integration, LWC
 
 
-Note: API responses are cached and refreshed every 15 minutes to optimize server performance on the free tier.
+Note: API responses are cached and refreshed via batch process every 15 minutes to optimize server performance on the free tier.
 
 Sample:
 ![TSLA](https://github.com/user-attachments/assets/46c36379-6756-445e-a33f-cc5fd4ae0619)
