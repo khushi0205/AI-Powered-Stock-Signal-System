@@ -1,6 +1,5 @@
 public with sharing class FinancialAnalysisService {
 
-    // ===== REQUEST FROM FLOW =====
     public class Request {
         @InvocableVariable(required=true)
         public String ticker;
@@ -9,7 +8,6 @@ public with sharing class FinancialAnalysisService {
         public Id recordId;
     }
 
-    // ===== FLOW ENTRY =====
     @InvocableMethod(label='Analyze Stock AI')
     public static void analyzeStock(List<Request> requests) {
 
@@ -21,74 +19,19 @@ public with sharing class FinancialAnalysisService {
             recordIds.add(r.recordId);
         }
 
-        analyzeStockAsync(tickers, recordIds);
+        System.enqueueJob(
+            new FinancialAnalysisQueueable(tickers, recordIds)
+        );
     }
-
-    // ===== FUTURE METHOD =====
-    @future(callout=true)
-    public static void analyzeStockAsync(List<String> tickers, List<Id> recordIds) {
-
-        List<Opportunity> oppsToUpdate = new List<Opportunity>();
-
-        for (Integer i = 0; i < tickers.size(); i++) {
-
-            String ticker = tickers[i];
-            Id recordId = recordIds[i];
-
-            try {
-                Http http = new Http();
-                HttpRequest request = new HttpRequest();
-
-                request.setEndpoint('callout:FinanceAPI/analyze/stocks');
-                request.setMethod('POST');
-                request.setHeader('Content-Type', 'application/json');
-
-                String body = '{"tickers": ["' + ticker + '"]}';
-                request.setBody(body);
-
-                HttpResponse response = http.send(request);
-
-                Opportunity opp = new Opportunity();
-                opp.Id = recordId;
-
-                if (response.getStatusCode() == 200) {
-
-                    List<Object> result = (List<Object>) JSON.deserializeUntyped(response.getBody());
-
-                    if (!result.isEmpty()) {
-                        Map<String, Object> data = (Map<String, Object>) result[0];
-
-                        opp.AI_Signal__c = (String) data.get('signal');
-                        opp.AI_Reasoning__c = (String) data.get('reasoning');
-
-                        Object conf = data.get('confidence');
-                        if (conf != null) {
-                            opp.AI_Confidence__c = Decimal.valueOf(String.valueOf(conf));
-                        }
-                    }
-
-                } else {
-                    opp.AI_Signal__c = 'HOLD';
-                    opp.AI_Confidence__c = 0.3;
-                    opp.AI_Reasoning__c = 'API error: ' + response.getStatus();
-                }
-
-                oppsToUpdate.add(opp);
-
-            } catch (Exception e) {
-
-                Opportunity opp = new Opportunity();
-                opp.Id = recordId;
-                opp.AI_Signal__c = 'HOLD';
-                opp.AI_Confidence__c = 0.2;
-                opp.AI_Reasoning__c = 'Exception: ' + e.getMessage();
-
-                oppsToUpdate.add(opp);
-            }
-        }
-
-        if (!oppsToUpdate.isEmpty()) {
-            update oppsToUpdate;
-        }
+    
+    @AuraEnabled
+    public static void analyzeStockFromLWC(Id recordId, String ticker) {
+    
+        List<String> tickers = new List<String>{ ticker };
+        List<Id> recordIds = new List<Id>{ recordId };
+    
+        System.enqueueJob(
+            new FinancialAnalysisQueueable(tickers, recordIds)
+        );
     }
 }
