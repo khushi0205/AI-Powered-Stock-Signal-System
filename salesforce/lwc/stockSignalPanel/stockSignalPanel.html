@@ -1,0 +1,40 @@
+<template>
+    <lightning-card title="AI Stock Signal">
+
+        <template if:true={isLoading}>
+            <p class="slds-p-around_medium">⏳ Analysing...</p>
+        </template>
+
+        <template if:true={data}>
+            <div class="container">
+                <p>
+                    📌 Ticker: {data.Stock_Ticker__c}
+                </p>
+
+                <p class={signalClass}>
+                    📈 Signal: {data.AI_Signal__c}
+                </p>
+
+                <p>
+                    📊 Confidence: {data.AI_Confidence__c}%
+                </p>
+
+                <p class="reasoning">
+                    💭 {data.AI_Reasoning__c}
+                </p>
+
+                <p>
+                    📅 Last Analysed: {data.Last_Analyzed__c}
+                </p>
+                <br>
+                <lightning-button 
+                    label="Analyse Now"
+                    variant="brand"
+                    onclick={handleAnalyse}>
+                </lightning-button>
+
+            </div>
+        </template>
+
+    </lightning-card>
+</template>

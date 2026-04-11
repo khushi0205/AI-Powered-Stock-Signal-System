@@ -1,0 +1,23 @@
+.container {
+    padding: 10px;
+}
+
+.buy {
+    color: green;
+    font-weight: bold;
+}
+
+.sell {
+    color: red;
+    font-weight: bold;
+}
+
+.hold {
+    color: goldenrod;
+    font-weight: bold;
+}
+
+.reasoning {
+    margin-top: 10px;
+    font-style: italic;
+}

@@ -1,0 +1,95 @@
+public class FinancialAnalysisQueueable implements Queueable, Database.AllowsCallouts {
+
+    private List<String> tickers;
+    private List<Id> recordIds;
+
+    public FinancialAnalysisQueueable(List<String> tickers, List<Id> recordIds) {
+        this.tickers = tickers;
+        this.recordIds = recordIds;
+    }
+
+    public void execute(QueueableContext context) {
+
+        HttpRequest req = new HttpRequest();
+        req.setEndpoint('callout:FinanceAPI/analyze/stocks');
+        req.setMethod('POST');
+        req.setHeader('Content-Type', 'application/json');
+
+        Map<String, Object> bodyMap = new Map<String, Object>{
+            'tickers' => tickers
+        };
+
+        req.setBody(JSON.serialize(bodyMap));
+
+        Http http = new Http();
+        HttpResponse res;
+
+        List<Opportunity> oppsToUpdate = new List<Opportunity>();
+
+        try {
+            res = http.send(req);
+
+            if (res.getStatusCode() == 200) {
+
+                List<Object> results =
+                    (List<Object>) JSON.deserializeUntyped(res.getBody());
+
+                for (Integer i = 0; i < results.size(); i++) {
+
+                    Map<String, Object> data =
+                        (Map<String, Object>) results[i];
+
+                    Opportunity opp = new Opportunity();
+                    opp.Id = recordIds[i];
+
+                    opp.AI_Signal__c = (String) data.get('signal');
+                    opp.AI_Reasoning__c = (String) data.get('reasoning');
+
+                    Object conf = data.get('confidence');
+                    if (conf != null) {
+                        opp.AI_Confidence__c =
+                            Decimal.valueOf(String.valueOf(conf));
+                    }
+
+                    opp.Last_Analyzed__c = System.now();
+
+                    oppsToUpdate.add(opp);
+                }
+
+            } else {
+                addFallback(oppsToUpdate);
+            }
+
+        } catch (Exception e) {
+            addExceptionFallback(oppsToUpdate, e);
+        }
+
+        if (!oppsToUpdate.isEmpty()) {
+            update oppsToUpdate;
+        }
+    }
+
+    private void addFallback(List<Opportunity> oppsToUpdate) {
+        for (Id recordId : recordIds) {
+            Opportunity opp = new Opportunity();
+            opp.Id = recordId;
+            opp.AI_Signal__c = 'HOLD';
+            opp.AI_Confidence__c = 0.3;
+            opp.AI_Reasoning__c = 'API error';
+            opp.Last_Analyzed__c = System.now();
+            oppsToUpdate.add(opp);
+        }
+    }
+
+    private void addExceptionFallback(List<Opportunity> oppsToUpdate, Exception e) {
+        for (Id recordId : recordIds) {
+            Opportunity opp = new Opportunity();
+            opp.Id = recordId;
+            opp.AI_Signal__c = 'HOLD';
+            opp.AI_Confidence__c = 0.2;
+            opp.AI_Reasoning__c = 'Exception: ' + e.getMessage();
+            opp.Last_Analyzed__c = System.now();
+            oppsToUpdate.add(opp);
+        }
+    }
+}
