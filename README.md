@@ -1,3 +1,7 @@
+# AI-Powered Salesforce Stock Signal System
+
+An end-to-end AI-powered decision system that integrates Salesforce, FastAPI, and OpenAI to generate real-time stock trading signals within CRM workflows.
+
 - Designed and implemented an AI-powered decision system integrating Salesforce LWC, Apex (Queueable), and a FastAPI microservice to generate real-time stock trading signals within CRM workflows.
 - Developed a custom LWC on Opportunity records for user-triggered analysis and real-time visualization of BUY/SELL/HOLD signals with confidence scores and contextual reasoning.
 - Engineered asynchronous API integration using Queueable Apex and Named Credentials, ensuring scalable and non-blocking execution within Salesforce governor limits.
@@ -11,7 +15,7 @@ Note: API responses are cached and refreshed every 15 minutes to optimize server
 Sample:
 ![TSLA](https://github.com/user-attachments/assets/46c36379-6756-445e-a33f-cc5fd4ae0619)
 
-Create new Opportunity + Update Opportunity:
+Create New Opportunity + Update Opportunity:
 
 https://github.com/user-attachments/assets/a22ffdfe-f903-4330-a797-5b4ff09cedb4
 
